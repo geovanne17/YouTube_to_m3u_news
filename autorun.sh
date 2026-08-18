@@ -1,11 +1,14 @@
 #!/bin/bash
 
-echo $(dirname $0)
+# Garante que o script execute a partir do seu diretório de origem
+cd "$(dirname "$0")"
 
-python3 -m pip install requests
+# Instala/atualiza o yt-dlp e requests (caso precise para outros scripts)
+python3 -m pip install --upgrade pip
+python3 -m pip install yt-dlp requests
 
-cd $(dirname $0)/scripts/
-
+# Navega para a pasta de scripts e executa a extração
+cd scripts/
 python3 youtube_m3ugrabber.py > ../youtube.m3u
 
-echo m3u grabbed
+echo "M3U extraído com sucesso!"
