@@ -4,3 +4,9 @@ https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na
 
 #EXTINF:-1 group-title="Brasil" tvg-logo="https://yt3.ggpht.com/vUpZf5aD6hmKpzp-6-zYCiH_1F5Z89NJ0Y7dRyzcjiCU5B5zDbJdpTnZyMj5Rqxrk1bbWrJ8=s48-c-k-c0x00ffffff-no-rj" tvg-id="sbt", SBT ao Vivo
 https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na.m3u
+
+#EXTINF:-1 group-title="Brasil" tvg-logo="https://yt3.ggpht.com/vUpZf5aD6hmKpzp-6-zYCiH_1F5Z89NJ0Y7dRyzcjiCU5B5zDbJdpTnZyMj5Rqxrk1bbWrJ8=s48-c-k-c0x00ffffff-no-rj" tvg-id="sbt", SBT MS
+https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na.m3u
+
+#EXTINF:-1 group-title="Brasil" tvg-logo="https://yt3.ggpht.com/ytc/AKedOLT9bX_pL_Q1G1F_rO2f_Z2rC-z4Z4R1N8X=s48-c-k-c0x00ffffff-no-rj" tvg-id="jovempan", Jovem Pan News
+https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na.m3u
