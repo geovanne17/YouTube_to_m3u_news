@@ -2,57 +2,48 @@
 
 banner = r'''
 #########################################################################
-#      ____            _           _   __  __                           #
+#      ____            _           _   __                           #
 #     |  _ \ _ __ ___ (_) ___  ___| |_|  \/  | ___   ___  ___  ___      #
 #     | |_) | '__/ _ \| |/ _ \/ __| __| |\/| |/ _ \ / _ \/ __|/ _ \     #
 #     |  __/| | | (_) | |  __/ (__| |_| |  | | (_) | (_) \__ \  __/     #
 #     |_|   |_|  \___// |\___|\___|\__|_|  |_|\___/ \___/|___/\___|     #
-#                   |__/                                                #
-#                                  >> https://github.com/benmoose39     #
+#                    |__/                                               #
+#                                           >> https://github.com/benmoose39     #
 #########################################################################
 '''
 
-import requests
-import os
 import sys
-
-windows = False
-if 'win' in sys.platform:
-    windows = True
+import yt_dlp
 
 def grab(url):
-    headers = {
-    'User-Agent': 'Mozilla/5.0 (Android 10; Mobile; rv:88.0) Gecko/88.0 Firefox/88.0'
+    ydl_opts = {
+        'quiet': True,
+        'no_warnings': True,
+        'extract_flat': False,
+        'force_generic_extractor': False,
     }
-    response = requests.get(url, headers=headers, timeout=15).text
-    if '.m3u8' not in response:
-        #response = requests.get(url).text
-        if '.m3u8' not in response:
-            if windows:
+    
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            
+            # Busca a URL do manifesto HLS (.m3u8)
+            m3u8_url = info.get('manifest_url') or info.get('url')
+            
+            if m3u8_url and '.m3u8' in m3u8_url:
+                print(m3u8_url)
+            else:
+                # Link de fallback se não encontrar o .m3u8
                 print('https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na.m3u')
-                return
-            #os.system(f'wget {url} -O temp.txt')
-            os.system(f'curl "{url}" > temp.txt')
-            response = ''.join(open('temp.txt').readlines())
-            if '.m3u8' not in response:
-                print('https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na.m3u')
-                return
-    end = response.find('.m3u8') + 5
-    tuner = 100
-    while True:
-        if 'https://' in response[end-tuner : end]:
-            link = response[end-tuner : end]
-            start = link.find('https://')
-            end = link.find('.m3u8') + 5
-            break
-        else:
-            tuner += 5
-    print(f"{link[start : end]}")
+    except Exception:
+        # Link de fallback em caso de erro/live off-line
+        print('https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na.m3u')
 
 print('#EXTM3U x-tvg-url="https://github.com/botallen/epg/releases/download/latest/epg.xml"')
 print(banner)
-#s = requests.Session()
-with open('../youtube_channel_info.txt') as f:
+
+# Lendo o arquivo de canais
+with open('../youtube_channel_info.txt', 'r', encoding='utf-8') as f:
     for line in f:
         line = line.strip()
         if not line or line.startswith('~~'):
@@ -66,7 +57,3 @@ with open('../youtube_channel_info.txt') as f:
             print(f'\n#EXTINF:-1 group-title="{grp_title}" tvg-logo="{tvg_logo}" tvg-id="{tvg_id}", {ch_name}')
         else:
             grab(line)
-            
-if 'temp.txt' in os.listdir():
-    #os.system('rm temp.txt')
-    os.system('rm watch*')
