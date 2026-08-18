@@ -17,36 +17,53 @@ import yt_dlp
 
 import yt_dlp
 
+import yt_dlp
+
 def grab(url):
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
-        'extract_flat': False,
         'skip_download': True,
-        # Adiciona User-Agent e headers para evitar bloqueios no servidor do GitHub
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
+        # Força o uso do cliente Android/Web do YouTube para evitar bloqueio do GitHub Actions
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'web'],
+            }
+        },
     }
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             
-            # Se for uma página de canal/playlist, pega a primeira live disponível
-            if 'entries' in info and len(info['entries']) > 0:
+            # Se for uma lista/canal, pega o item ativo
+            if 'entries' in info:
                 info = info['entries'][0]
+                
+            m3u8_url = None
             
-            # Tenta pegar a URL do manifesto m3u8 de transmissão
-            m3u8_url = info.get('manifest_url') or info.get('url')
+            # 1. Tenta pegar a manifest_url primária
+            if info.get('manifest_url'):
+                m3u8_url = info['manifest_url']
             
-            if m3u8_url and '.m3u8' in m3u8_url:
+            # 2. Se não encontrar, percorre os formatos disponíveis da live buscando por m3u8
+            elif 'formats' in info:
+                for fmt in info['formats']:
+                    if fmt.get('protocol') in ['m3u8', 'm3u8_native'] or '.m3u8' in fmt.get('url', ''):
+                        m3u8_url = fmt['url']
+                        break
+            
+            # 3. Fallback para URL direta
+            if not m3u8_url and info.get('url') and '.m3u8' in info['url']:
+                m3u8_url = info['url']
+
+            if m3u8_url:
                 print(m3u8_url)
             else:
                 print('https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na.m3u')
-    except Exception:
-        print('https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na.m3u')
 
+    except Exception as e:
+        print('https://raw.githubusercontent.com/benmoose39/YouTube_to_m3u/main/assets/moose_na.m3u')
 # Lendo o arquivo de canais
 with open('../youtube_channel_info.txt', 'r', encoding='utf-8') as f:
     for line in f:
