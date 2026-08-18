@@ -1,53 +1,51 @@
-# This is a basic workflow to help you get started with Actions
-
 name: M3U generator
 
-# Controls when the action will run. 
 on:
   schedule:
-    - cron: '0 0/3 * * *'
+    - cron: '0 */3 * * *'  # Roda a cada 3 horas
 
   pull_request:
     branches:
       - main
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  workflow_dispatch:  # Permite rodar manualmente no GitHub
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      # 1. Baixa o repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      #- name: Run a one-line script
-      #  run: echo testing!
+      # 2. Configura o Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
-      # Runs a set of commands using the runners shell 
-      - name: config
+      # 3. Instala a biblioteca yt-dlp
+      - name: Install dependencies
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
+          python -m pip install --upgrade pip
+          pip install yt-dlp
 
-      - name: Main
+      # 4. Configura credenciais do Git
+      - name: Git Config
         run: |
-          pwd
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      # 5. Executa o script
+      - name: Run autorun.sh
+        run: |
           chmod +x autorun.sh
           ./autorun.sh
 
-      - name: git add
+      # 6. Salva e envia as alterações de volta ao repositório
+      - name: Commit and Push
         run: |
           git add -A
-          ls -la
-
-      - name: commit & push
-        run: |
-          git commit -m "links are updated"
-          git push -f
+          git diff-index --quiet HEAD || git commit -m "Auto-update M3U links [skip ci]"
+          git push
