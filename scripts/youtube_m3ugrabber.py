@@ -21,7 +21,10 @@ if 'win' in sys.platform:
     windows = True
 
 def grab(url):
-    response = requests.get(url, timeout=15).text
+    headers = {
+    'User-Agent': 'Mozilla/5.0 (Android 10; Mobile; rv:88.0) Gecko/88.0 Firefox/88.0'
+    }
+    response = requests.get(url, headers=headers, timeout=15).text
     if '.m3u8' not in response:
         #response = requests.get(url).text
         if '.m3u8' not in response:
